@@ -1,14 +1,15 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { FaArrowAltCircleLeft } from 'react-icons/fa';
 import { RiResetRightFill } from "react-icons/ri";
+import { FaPlus, FaTimes } from 'react-icons/fa';
+import CityModal from '../../components/modals/CityModal';
 
 const Page = () => {
   const router = useRouter();
-
   const [formData, setFormData] = useState({
     videoLink: '',
     cityNames: [],
@@ -21,23 +22,24 @@ const Page = () => {
     tagline: '',
     secondTagline: '',
   });
-
   const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState([]);
   const [citiesLoading, setCitiesLoading] = useState(true);
+  const [cityModalOpen, setCityModalOpen] = useState(false);
+
+  const fetchCities = useCallback(async () => {
+    setCitiesLoading(true);
+    try {
+      const { data } = await axios.get('/api/cities');
+      setCities(data);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to load cities');
+    } finally {
+      setCitiesLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchCities = async () => {
-      try {
-        const { data } = await axios.get('/api/cities');
-        setCities(data);
-      } catch (error) {
-        toast.error(error.response?.data?.message || 'Failed to load cities');
-      } finally {
-        setCitiesLoading(false);
-      }
-    };
-
     const fetchData = async () => {
       try {
         const { data } = await axios.get('/api/info');
@@ -51,7 +53,7 @@ const Page = () => {
 
     fetchCities();
     fetchData();
-  }, []);
+  }, [fetchCities]);
 
   // Handle input change
   const handleChange = (e) => {
@@ -94,7 +96,7 @@ const Page = () => {
     setLoading(true);
     try {
       const { data } = await axios.post('/api/info', formData);
-      toast.success(data.message || 'Header updated successfully!');
+      toast.success(data.message || 'Info updated successfully!');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Network error occurred');
     } finally {
@@ -104,8 +106,9 @@ const Page = () => {
 
   return (
     <main className='flex flex-col gap-4'>
+      <Toaster position="bottom-right" />
 
-      {/* SINGLE FORM */}
+      {/*Form Start */}
       <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
         <h1 className='bg-[#2D5F51] w-fit py-1 px-2 rounded-lg text-xl font-semibold text-white'>
           Update Page Information
@@ -132,7 +135,7 @@ const Page = () => {
             <label className='font-semibold text-white absolute bg-[#2D5F51] px-2 -top-6 left-0 rounded-t-lg'>
               Tag Line
             </label>
-            <input
+            <textarea
               type="text"
               id="tagline"
               value={formData.tagline}
@@ -142,38 +145,71 @@ const Page = () => {
           </div>
 
           {/* City Names */}
-          {/* <fieldset className='flex flex-col gap-2 relative rounded-lg border border-gray-300 p-3 pt-4'>
-            <legend className='rounded-lg bg-[#2D5F51] px-2 font-semibold text-white'>City Names</legend>
+          <div className='flex flex-col gap-2 relative rounded-lg border border-gray-300 p-3 pt-4'>
+            <label className='font-semibold text-white absolute bg-[#2D5F51] px-2 -top-6 left-0 rounded-t-lg'>
+              City Names
+            </label>
+
             {citiesLoading ? (
               <p className='text-sm text-gray-600'>Loading cities...</p>
-            ) : cities.length ? (
-              <div className='grid grid-cols-2 gap-2'>
-                {cities.map((city) => (
-                  <label key={city._id} className='flex items-center gap-2 rounded-md bg-white px-3 py-2 font-semibold text-gray-700'>
-                    <input
-                      type="checkbox"
-                      checked={formData.cityNames.includes(city.name)}
-                      onChange={() => handleCityChange(city.name)}
-                      className='h-4 w-4 accent-[#2D5F51]'
-                    />
-                    {city.name}
-                  </label>
-                ))}
-              </div>
             ) : (
-              <p className='text-sm text-gray-600'>No cities available.</p>
+              <div className='flex gap-2 '>
+                <div className='flex flex-wrap items-center gap-2'>
+                  {formData.cityNames.map((name) => (
+                    <span
+                      key={name}
+                      className='flex items-center gap-1.5 rounded-full bg-[#2D5F51] px-3 py-1 text-sm font-semibold text-white'
+                    >
+                      {name}
+                      <button
+                        type='button'
+                        onClick={() => handleCityChange(name)}
+                        aria-label={`Remove ${name}`}
+                        className='cursor-pointer hover:text-red-200'
+                      >
+                        <FaTimes size={10} />
+                      </button>
+                    </span>
+                  ))}
+
+                  {formData.cityNames.length === 0 && (
+                    <span className='text-sm text-gray-500'>No cities selected</span>
+                  )}
+                </div>
+
+                <button
+                  type='button'
+                  onClick={() => setCityModalOpen(true)}
+                  aria-label='Manage cities'
+                  className='flex h-6 w-6 items-center justify-center rounded-full border-2 border-dashed border-[#2D5F51] text-[#2D5F51] hover:bg-[#2D5F51] hover:text-white transition duration-200 cursor-pointer'
+                >
+                  <FaPlus size={12} />
+                </button>
+
+              </div>
             )}
-            <span className='text-sm text-gray-600' aria-live="polite">
+
+            <span className='text-sm text-gray-600' aria-live='polite'>
               {formData.cityNames.length} selected
             </span>
-          </fieldset> */}
+          </div>
+          
+          {/* Modal Component */}
+          <CityModal
+            open={cityModalOpen}
+            onClose={() => setCityModalOpen(false)}
+            cities={cities}
+            selected={formData.cityNames}
+            onToggle={handleCityChange}
+            onChanged={fetchCities}
+          />
 
           {/* 2nd Tag Line */}
           <div className='flex flex-col gap-1 relative'>
             <label className='font-semibold text-white absolute bg-[#2D5F51] px-2 -top-6 left-0 rounded-t-lg'>
               2nd Tag Line
             </label>
-            <input
+            <textarea
               type="secondTagline"
               id="secondTagline"
               value={formData.secondTagline}

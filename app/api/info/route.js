@@ -35,9 +35,9 @@ export async function POST(request) {
       { new: true, upsert: true, runValidators: true }
     ).lean();
 
-    return NextResponse.json({ message: 'Settings updated successfully', settings: savedSettings });
+    return NextResponse.json({ message: 'Info updated successfully', settings: savedSettings });
   } catch (error) {
-    console.error('Failed to update site settings:', error);
-    return NextResponse.json({ message: 'Failed to update site settings' }, { status: 500 });
+    console.error('Failed to update site info:', error);
+    return NextResponse.json({ message: 'Failed to update site info' }, { status: 500 });
   }
 }
