@@ -11,9 +11,9 @@ const page = () => {
 
     return (
         <main className='grid md:grid-cols-3 grid-cols-2 gap-4'>
-            <button onClick={() => router.push('/dashboard/header')} className='p-2 rounded-lg bg-gray-200 flex flex-col items-center gap-2 hover:bg-[#2D5F51] hover:text-white text-[#2D5F51] transition-all duration-300 cursor-pointer'>
+            <button onClick={() => router.push('/dashboard/landingPage')} className='p-2 rounded-lg bg-gray-200 flex flex-col items-center gap-2 hover:bg-[#2D5F51] hover:text-white text-[#2D5F51] transition-all duration-300 cursor-pointer'>
                 <Lottie animationData={header} loop={true} style={{ filter: 'hue-rotate(110deg)', width: '200px', height: '200px' }} />
-                <span className='font-bold md:text-md text-sm bg-[#2D5F51] text-white p-1 px-2 rounded-[10px]'>Update Website Header-Footer Info</span>
+                <span className='font-bold md:text-md text-sm bg-[#2D5F51] text-white p-1 px-2 rounded-[10px]'>Update Website Landing Page Info</span>
             </button>
 
             <button onClick={() => router.push('/dashboard/carousel')} className='p-2 rounded-lg bg-gray-200 flex flex-col items-center gap-2 hover:bg-[#2D5F51] hover:text-white text-[#2D5F51] transition-all duration-300 cursor-pointer'>

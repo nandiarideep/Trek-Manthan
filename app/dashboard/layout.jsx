@@ -1,23 +1,10 @@
 'use client';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { notFound } from 'next/navigation';
 import AdminNavbar from '../components/AdminNavbar';
 import Sidebar from '../components/Sidebar';
 
 export default function DashboardLayout({ children }) {
-  const router = useRouter();
-
-  // useEffect(() => {
-  //   const token = sessionStorage.getItem('token');
-  //   if (!token) {
-  //     router.push('/admin');
-  //     return;
-  //   }
-  // }, [router]);
-
   return (
-    <section className="h-screen overflow-hidden flex p-2 gap-2">
+    <section className="h-screen overflow-hidden flex p-2 gap-2 font-gasalt">
       <Sidebar />
       <div className="flex flex-col w-full gap-2 overflow-hidden">
         <AdminNavbar />

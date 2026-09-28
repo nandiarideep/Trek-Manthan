@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import Navbar from "../app/components/Navbar";
-// import Footer from "@/components/Footer";
 import Loader from "../app/components/Loader";
 import Landing from '../app/pages/landing/page';
 import Services from '../app/pages/services/page';
@@ -13,6 +12,8 @@ const page = () => {
     <Suspense fallback={<Loader />}>
       <div className='min-h-[100dvh] w-full font-anton'>
         <Navbar />
+
+        {/* Page Start */}
         <section id="home">
           <Landing />
         </section>
@@ -28,6 +29,8 @@ const page = () => {
         <section id="contact">
           <Contact />
         </section>
+        {/* Page End */}
+
       </div>
     </Suspense>
   )

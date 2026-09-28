@@ -12,8 +12,7 @@ export default function AdminNavbar() {
     const router = useRouter();
 
     /* ---------------- Get User (from localStorage/sessionStorage or fallback) ---------------- */
-    const user = JSON.parse(localStorage.getItem("user")) ||
-        JSON.parse(sessionStorage.getItem("user")) || { name: "User" }; // fallback
+    const [user, setUser] = useState({ name: "User" });
 
     /* ---------------- Toggle Fullscreen ---------------- */
     const toggleFullscreen = () => {
@@ -51,6 +50,16 @@ export default function AdminNavbar() {
 
         setDropdownOpen(false);
     };
+
+    useEffect(() => {
+        try {
+            const stored =
+                localStorage.getItem("user") || sessionStorage.getItem("user");
+            if (stored) setUser(JSON.parse(stored));
+        } catch {
+            // invalid JSON or storage unavailable, keep the fallback
+        }
+    }, []);
 
     /* ---------------- Close Dropdown on Outside Click ---------------- */
     useEffect(() => {

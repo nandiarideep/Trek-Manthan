@@ -10,20 +10,20 @@ export default function ContactSection() {
     const [budget, setBudget] = useState('$1,500 – $5,000');
 
     return (
-        <main className="text-2xl font-bold h-[100dvh] min-w-full bg-gradient-to-b from-[#F6EFDF] to-[#2d7a63] text-white flex flex-col items-center justify-center gap-10">
-            <div className="relative max-w-6xl mx-auto rounded-3xl border border-white/10 overflow-hidden bg-[#0e1310]">
+        <main className="min-h-[100dvh] w-full px-4 py-6 sm:px-6 sm:py-8 bg-gradient-to-b from-[#F6EFDF] to-[#2d7a63] text-white flex flex-col items-center justify-center gap-6 sm:gap-10">
+            <div className="relative w-full max-w-6xl mx-auto rounded-3xl border border-white/10 overflow-hidden bg-[#0e1310]">
                 {/* Ambient glow, bottom-left */}
                 <div className="pointer-events-none absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-500/25 blur-[100px] rounded-full" />
 
-                <div className="relative grid md:grid-cols-2 gap-12 p-8 md:p-14">
+                <div className="relative grid md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 p-5 sm:p-8 md:p-14">
                     {/* Left column */}
                     <div className="flex flex-col justify-between text-white">
                         <div>
-                            <h2 className="text-4xl md:text-5xl font-semibold leading-tight">
+                            <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight">
                                 Plan your next trip with us
                             </h2>
 
-                            <ul className="mt-8 space-y-3 text-white/70">
+                            <ul className="mt-6 sm:mt-8 space-y-3 text-sm sm:text-base text-white/70">
                                 <li className="flex items-start gap-2">
                                     <span className="mt-1 text-emerald-400">✓</span>
                                     We reply with a custom itinerary within 24 hours
@@ -53,7 +53,7 @@ export default function ContactSection() {
                     </div>
 
                     {/* Right column — form */}
-                    <form className="flex flex-col gap-6 text-white">
+                    <form className="flex flex-col gap-5 sm:gap-6 text-white">
                         <div>
                             <p className="text-sm text-white/70 mb-2">Trip type</p>
                             <div className="flex flex-wrap gap-2">
@@ -92,7 +92,7 @@ export default function ContactSection() {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className="text-sm text-white/70">Full name*</label>
                                 <input
