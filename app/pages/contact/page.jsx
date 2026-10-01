@@ -1,13 +1,57 @@
 'use client';
 
-import { useState } from 'react';
-
-const TRIP_TYPES = ['Family Trip', 'Solo Travel', 'Honeymoon', 'Group Tour'];
-const BUDGETS = ['Under $1,500', '$1,500 – $5,000', '$5,000+'];
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 export default function ContactSection() {
-    const [tripType, setTripType] = useState('Family Trip');
-    const [budget, setBudget] = useState('$1,500 – $5,000');
+    const [pageInfo, setPageInfo] = useState({ email: '', contact: '', address: '' });
+    const [tripTypes, setTripTypes] = useState([]);
+    const [selectedTripType, setSelectedTripType] = useState('');
+    const [selectedBudget, setSelectedBudget] = useState('');
+    const [budgets] = useState(['Under $1,500', '$1,500 - $5,000', '$5,000+']);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const controller = new AbortController();
+        const { signal } = controller;
+
+        const loadData = async () => {
+            try {
+                const [infoRes, tripTypeRes] = await Promise.allSettled([
+                    axios.get('/api/info', { signal }),
+                    axios.get('/api/tripTypes', { signal }),
+                ]);
+
+                if (infoRes.status === 'fulfilled') {
+                    const settings = infoRes.value.data?.settings;
+                    if (settings) {
+                        setPageInfo({
+                            address: settings.address || '',
+                            email: settings.email || '',
+                            contact: settings.contact || '',
+                        });
+                    }
+                } else if (!axios.isCancel(infoRes.reason)) {
+                    console.error('Failed to load info:', infoRes.reason);
+                }
+
+                if (tripTypeRes.status === 'fulfilled') {
+                    const data = tripTypeRes.value.data;
+                    if (Array.isArray(data)) {
+                        setTripTypes(data.map((c) => c.name).filter(Boolean));
+                    }
+                } else if (!axios.isCancel(tripTypeRes.reason)) {
+                    console.error('Failed to load trip types:', tripTypeRes.reason);
+                }
+            } finally {
+                if (!signal.aborted) setLoading(false);
+            }
+        };
+
+        loadData();
+
+        return () => controller.abort();
+    }, []);
 
     return (
         <main className="min-h-[100dvh] w-full px-4 py-6 sm:px-6 sm:py-8 bg-gradient-to-b from-[#F6EFDF] to-[#2d7a63] text-white flex flex-col items-center justify-center gap-6 sm:gap-10">
@@ -40,8 +84,8 @@ export default function ContactSection() {
                         </div>
 
                         <div className="mt-10 md:mt-0">
-                            <a href="mailto:hello@trekmanthan.com" className="text-white underline underline-offset-4">
-                                hello@trekmanthan.com
+                            <a href={`mailto:${pageInfo.email}`} className="text-white underline underline-offset-4">
+                                {pageInfo.email}
                             </a>
                             <p className="mt-4 text-white/70">
                                 Prefer to talk it through?
@@ -57,12 +101,12 @@ export default function ContactSection() {
                         <div>
                             <p className="text-sm text-white/70 mb-2">Trip type</p>
                             <div className="flex flex-wrap gap-2">
-                                {TRIP_TYPES.map((type) => (
+                                {tripTypes.map((type) => (
                                     <button
                                         key={type}
                                         type="button"
-                                        onClick={() => setTripType(type)}
-                                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${tripType === type
+                                        onClick={() => setSelectedTripType(type)}
+                                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${selectedTripType === type
                                             ? 'bg-white text-black border-white'
                                             : 'border-white/20 text-white/70 hover:border-white/40'
                                             }`}
@@ -76,12 +120,12 @@ export default function ContactSection() {
                         <div>
                             <p className="text-sm text-white/70 mb-2">Budget</p>
                             <div className="flex flex-wrap gap-2">
-                                {BUDGETS.map((b) => (
+                                {budgets.map((b) => (
                                     <button
                                         key={b}
                                         type="button"
-                                        onClick={() => setBudget(b)}
-                                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${budget === b
+                                        onClick={() => setSelectedBudget(b)}
+                                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${selectedBudget === b
                                             ? 'bg-white text-black border-white'
                                             : 'border-white/20 text-white/70 hover:border-white/40'
                                             }`}

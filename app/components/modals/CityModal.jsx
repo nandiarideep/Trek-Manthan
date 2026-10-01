@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { FaTimes, FaTrash } from 'react-icons/fa';
+import { FaTimes, FaTrash, FaPlus } from 'react-icons/fa';
 
 const CityModal = ({ open, onClose, cities, selected, onToggle, onChanged }) => {
   const [newCity, setNewCity] = useState('');
@@ -32,11 +32,37 @@ const CityModal = ({ open, onClose, cities, selected, onToggle, onChanged }) => 
   };
 
   const deleteCity = async (city) => {
-    if (!window.confirm(`Delete "${city.name}"?`)) return;
+    toast((t) => (
+      <div className="flex flex-col gap-2">
+        <span>
+          Delete <strong>{city.name}</strong>?
+        </span>
+        <div className="flex gap-2 justify-end">
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-3 py-1 text-sm rounded-md border border-gray-300 hover:bg-gray-100 cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={async () => {
+              toast.dismiss(t.id);
+              await confirmDelete(city);
+            }}
+            className="px-3 py-1 text-sm rounded-md bg-red-600 text-white hover:bg-red-700 cursor-pointer"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    ));
+  };
+
+  const confirmDelete = async (city) => {
     try {
       setBusy(true);
       await axios.delete('/api/cities', { params: { id: city._id } });
-      if (selected.includes(city.name)) onToggle(city.name); // unselect it too
+      if (selected.includes(city.name)) onToggle(city.name);
       await onChanged();
       toast.success('City deleted');
     } catch (error) {
@@ -51,7 +77,7 @@ const CityModal = ({ open, onClose, cities, selected, onToggle, onChanged }) => 
       className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 font-gasalt'
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className='w-full max-w-md rounded-lg bg-white p-4 shadow-xl'>
+      <div className='w-full max-w-3xl rounded-lg bg-white p-4 shadow-xl'>
         <div className='mb-3 flex items-center justify-between'>
           <h3 className='text-lg font-bold text-[#2D5F51]'>Manage Cities</h3>
           <button type='button' onClick={onClose} aria-label='Close' className='cursor-pointer text-gray-500 hover:text-black'>
@@ -60,14 +86,14 @@ const CityModal = ({ open, onClose, cities, selected, onToggle, onChanged }) => 
         </div>
 
         {/* Add new city */}
-        <div className='mb-4 flex gap-2'>
+        <div className='mb-4 flex gap-2 flex justify-center items-center'>
           <input
             type='text'
             value={newCity}
             onChange={(e) => setNewCity(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
-                e.preventDefault(); // don't submit the parent form
+                e.preventDefault();
                 addCity();
               }
             }}
@@ -78,9 +104,9 @@ const CityModal = ({ open, onClose, cities, selected, onToggle, onChanged }) => 
             type='button'
             onClick={addCity}
             disabled={busy || !newCity.trim()}
-            className='rounded-lg bg-[#1F5346] px-3 text-white hover:bg-[#2D5F51] disabled:opacity-50 cursor-pointer'
+            className='flex h-6 w-6 items-center justify-center rounded-full border-2 border-dashed border-[#2D5F51] text-[#2D5F51] hover:bg-[#2D5F51] hover:text-white transition duration-200 cursor-pointer'
           >
-            Add
+            <FaPlus size={12} />
           </button>
         </div>
 
@@ -93,9 +119,8 @@ const CityModal = ({ open, onClose, cities, selected, onToggle, onChanged }) => 
             return (
               <span
                 key={city._id}
-                className={`flex items-center overflow-hidden rounded-full border text-sm font-semibold transition ${
-                  isSelected ? 'border-[#2D5F51] bg-[#2D5F51] text-white' : 'border-gray-300 bg-gray-100 text-gray-700'
-                }`}
+                className={`flex items-center overflow-hidden rounded-full border text-sm font-semibold transition ${isSelected ? 'border-[#2D5F51] bg-[#2D5F51] text-white' : 'border-gray-300 bg-gray-100 text-gray-700'
+                  }`}
               >
                 <button type='button' onClick={() => onToggle(city.name)} className='cursor-pointer py-1 pl-3 pr-2'>
                   {city.name}

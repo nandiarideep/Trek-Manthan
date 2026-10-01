@@ -5,7 +5,7 @@ import axios from 'axios';
 import RotatingText from "@/components/RotatingText";
 
 const Page = () => {
-    const [pageInfo, setPageInfo] = useState({ tagline: '', secondTagline: '' });
+    const [pageInfo, setPageInfo] = useState({ tagline: '', secondTagline: '', videoFile: '' });
     const [cities, setCities] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -26,6 +26,7 @@ const Page = () => {
                         setPageInfo({
                             tagline: settings.tagline || '',
                             secondTagline: settings.secondTagline || '',
+                            videoFile: settings.videoFile || '',
                         });
                     }
                 } else if (!axios.isCancel(infoRes.reason)) {
@@ -54,6 +55,7 @@ const Page = () => {
         <main className="antialiased w-full">
             {/* Background Video */}
             <video
+                key={pageInfo.videoFile || 'fallback-video'}
                 autoPlay
                 loop
                 muted
@@ -62,8 +64,14 @@ const Page = () => {
                 poster="/images/fallback.jpg"
                 className="absolute top-0 left-0 w-full h-full object-cover z-0"
             >
-                <source src="/videos/bg.webm" type="video/webm" />
-                <source src="/videos/bg.MOV" type="video/mp4" />
+                {pageInfo.videoFile ? (
+                    <source src={pageInfo.videoFile} />
+                ) : (
+                    <>
+                        <source src="/videos/bg.webm" type="video/webm" />
+                        <source src="/videos/bg.MOV" type="video/mp4" />
+                    </>
+                )}
             </video>
             {/* Overlay */}
             <span className="absolute inset-0 bg-black/50 z-10"></span>

@@ -11,11 +11,12 @@ import Image from 'next/image';
 const SIDEBAR_MENUS = [
     { id: 1, name: "Dashboard", slug: "dashboard", icon: FaHome },
     { id: 2, name: "Website Info", slug: "dashboard/website-info", icon: FaGlobe },
-    { id: 3, name: "Bookings", slug: "dashboard/bookings", icon: FaFile },
-    { id: 4, name: "Folders", slug: "dashboard/folders", icon: FaFolder },
-    { id: 5, name: "Database", slug: "dashboard/database", icon: FaDatabase },
-    { id: 6, name: "Users", slug: "dashboard/users", icon: FaUser },
-    { id: 7, name: "Settings", slug: "dashboard/settings", icon: FaCog },
+    { id: 3, name: "Enquiries", slug: "dashboard/enquiries", icon: FaGlobe },
+    { id: 4, name: "Bookings", slug: "dashboard/bookings", icon: FaFile },
+    { id: 5, name: "Folders", slug: "dashboard/folders", icon: FaFolder },
+    { id: 6, name: "Database", slug: "dashboard/database", icon: FaDatabase },
+    { id: 7, name: "Users", slug: "dashboard/users", icon: FaUser },
+    { id: 8, name: "Settings", slug: "dashboard/settings", icon: FaCog },
 ];
 
 /* ---------------- Sidebar Item ---------------- */

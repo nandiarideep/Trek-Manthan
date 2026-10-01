@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const infoSchema = new mongoose.Schema({
-    videoLink: String,
+    videoFile: String,
     cityNames: { type: [String], default: [] },
     tagline: String,
     secondTagline: String,
