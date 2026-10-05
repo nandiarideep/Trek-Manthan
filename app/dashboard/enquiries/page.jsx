@@ -1,35 +1,23 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import DynamicTable from '../../components/DynamicTable'
+import { fetchInquiries } from '@/lib/features/inquiries/inquiriesSlice'
 
 const page = () => {
-    const [data, setData] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState('')
+    const dispatch = useDispatch()
+    const { items: data, status, error } = useSelector((state) => state.inquiries)
 
     useEffect(() => {
-        const fetchInquiries = async () => {
-            try {
-                const response = await axios.get('/api/inquiries')
-
-                setData(response.data.inquiries)
-            } catch (error) {
-                console.error('Failed to fetch inquiries:', error)
-                setError('Failed to load inquiries')
-            } finally {
-                setLoading(false)
-            }
+        if (status === 'idle') {
+            dispatch(fetchInquiries())
         }
-
-        fetchInquiries()
-    }, [])
+    }, [dispatch, status])
 
     const columns = [
         { key: "fullName", label: "Inquiry Name" },
         { key: "email", label: "Email" },
-        { key: "phone", label: "Phone No." },
         { key: "destination", label: "Destination" },
         { key: "tripType", label: "Trip Type" },
         { key: "travelers", label: "No Of Persons" },
@@ -44,11 +32,22 @@ const page = () => {
                 Inquiries
             </h1>
 
-            {loading && <p>Loading inquiries...</p>}
+            {status === 'loading' && <p role="status">Loading inquiries...</p>}
 
-            {error && <p className="text-red-500">{error}</p>}
+            {status === 'failed' && (
+                <div className="flex items-center gap-3 text-red-600" role="alert">
+                    <p>{error}</p>
+                    <button
+                        type="button"
+                        onClick={() => dispatch(fetchInquiries())}
+                        className="rounded-md border border-red-300 px-3 py-1 text-sm hover:bg-red-50"
+                    >
+                        Retry
+                    </button>
+                </div>
+            )}
 
-            {!loading && !error && (
+            {status === 'succeeded' && (
                 <DynamicTable
                     data={data}
                     columns={columns}

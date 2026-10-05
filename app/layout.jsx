@@ -1,6 +1,7 @@
 import { Anton, Oswald, Quicksand } from 'next/font/google';
 import "./globals.css";
 import VisitTracker from './components/VisitTracker';
+import StoreProvider from './StoreProvider';
 
 const anton = Anton({
   weight: '400',
@@ -32,8 +33,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${anton.variable} ${oswald.variable} ${quicksand.variable}`}>
-        <VisitTracker />
-        {children}
+        <StoreProvider>
+          <VisitTracker />
+          {children}
+        </StoreProvider>
       </body>
     </html>
   );
