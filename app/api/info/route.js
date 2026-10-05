@@ -90,7 +90,28 @@ export async function GET(request) {
 
       headers.set('Content-Length', String(end - start + 1));
       const downloadStream = bucket.openDownloadStream(_id, { start, end: end + 1 });
-      return new Response(Readable.toWeb(downloadStream), { status, headers });
+      const iterator = downloadStream[Symbol.asyncIterator]();
+      let cancelled = false;
+      const responseStream = new ReadableStream({
+        async pull(controller) {
+          try {
+            const { value, done } = await iterator.next();
+            if (cancelled) return;
+            if (done) {
+              controller.close();
+            } else {
+              controller.enqueue(value);
+            }
+          } catch (error) {
+            if (!cancelled) controller.error(error);
+          }
+        },
+        cancel() {
+          cancelled = true;
+          downloadStream.destroy();
+        },
+      });
+      return new Response(responseStream, { status, headers });
     } catch (error) {
       console.error('Failed to stream video:', error);
       return NextResponse.json({ message: 'Invalid video id' }, { status: 400 });

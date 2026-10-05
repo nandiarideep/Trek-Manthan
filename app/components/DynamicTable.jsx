@@ -24,6 +24,7 @@ import {
     SelectItem,
 } from "../../components/ui/select"
 import { Pagination, Stack } from "@mui/material";
+import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react";
 
 const EXCLUDED_COLUMNS = ["slNo", "action"]
 
@@ -34,6 +35,7 @@ export default function DynamicTable({
     page = 1,
     totalPages = 1,
     onPageSizeChange = () => { },
+    onPageChange = () => { },
 
     // optional controlled search
     showSearch = true,
@@ -62,8 +64,10 @@ export default function DynamicTable({
     // decide search source
     const activeSearch = searchTerm !== undefined ? searchTerm : localSearch
 
-    // 🔍 Filter
+    // Filter
     const filteredData = useMemo(() => {
+        if (!activeSearch.trim()) return data
+
         return data.filter((row) =>
             columns.some((col) =>
                 String(row[col.key] ?? "")
@@ -73,17 +77,36 @@ export default function DynamicTable({
         )
     }, [data, activeSearch, columns])
 
-    // 🔃 Sort
+    // Sort
     const sortedData = useMemo(() => {
         if (!sortKey) return filteredData
 
         return [...filteredData].sort((a, b) => {
             const valA = a[sortKey]
             const valB = b[sortKey]
+            const emptyA = valA === null || valA === undefined || valA === ""
+            const emptyB = valB === null || valB === undefined || valB === ""
 
-            if (valA < valB) return sortOrder === "asc" ? -1 : 1
-            if (valA > valB) return sortOrder === "asc" ? 1 : -1
-            return 0
+            if (emptyA || emptyB) return emptyA === emptyB ? 0 : emptyA ? 1 : -1
+
+            let comparison
+            if (valA instanceof Date && valB instanceof Date) {
+                comparison = valA.getTime() - valB.getTime()
+            } else if (
+                typeof valA === "number" && typeof valB === "number"
+                || typeof valA === "string" && typeof valB === "string"
+                    && valA.trim() !== "" && valB.trim() !== ""
+                    && Number.isFinite(Number(valA)) && Number.isFinite(Number(valB))
+            ) {
+                comparison = Number(valA) - Number(valB)
+            } else {
+                comparison = String(valA).localeCompare(String(valB), undefined, {
+                    numeric: true,
+                    sensitivity: "base",
+                })
+            }
+
+            return sortOrder === "asc" ? comparison : -comparison
         })
     }, [filteredData, sortKey, sortOrder])
 
@@ -101,31 +124,35 @@ export default function DynamicTable({
 
     return (
         <div className="space-y-2">
-            {/* 🔍 Search + Column Toggle */}
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-                <div className="flex gap-2">
+            {/* Search + Column Toggle */}
+            <div className="flex items-center justify-between gap-3 flex-wrap rounded-lg border border-gray-200 bg-white p-3">
+                <div className="flex flex-wrap items-center gap-2">
                     {showSearch && (
-                        <input
-                            type="text"
-                            placeholder="Search..."
-                            className="border rounded-md px-3 py-[7px] focus:border-[#2D5F51] w-64 text-sm font-semibold duration-200"
-                            value={activeSearch}
-                            onChange={(e) => {
-                                if (onSearchChange) {
-                                    onSearchChange(e.target.value)
-                                } else {
-                                    setLocalSearch(e.target.value)
-                                }
-                            }}
-                        />
+                        <label className="flex h-9 w-full items-center gap-2 rounded-md border border-gray-300 px-3 focus-within:border-[#2D5F51] sm:w-64">
+                            <Search className="h-4 w-4 shrink-0 text-gray-500" aria-hidden="true" />
+                            <input
+                                type="search"
+                                placeholder="Search records"
+                                aria-label="Search records"
+                                className="w-full bg-transparent text-sm outline-none placeholder:text-gray-400"
+                                value={activeSearch}
+                                onChange={(e) => {
+                                    if (onSearchChange) {
+                                        onSearchChange(e.target.value)
+                                    } else {
+                                        setLocalSearch(e.target.value)
+                                    }
+                                }}
+                            />
+                        </label>
                     )}
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="outline">Columns</Button>
+                            <Button variant="outline" className="h-9 cursor-pointer">Columns</Button>
                         </DropdownMenuTrigger>
 
-                        <DropdownMenuContent className="z-[9999] bg-white shadow-md border rounded-md">
+                        <DropdownMenuContent className="z-[9999] bg-white shadow-md border rounded-md font-gasalt">
 
                             {columns
                                 .filter((col) => !EXCLUDED_COLUMNS.includes(col.key))
@@ -154,7 +181,7 @@ export default function DynamicTable({
                             <SelectValue placeholder="Rows" />
                         </SelectTrigger>
 
-                        <SelectContent className="rounded-lg shadow-lg border border-gray-200 w-[72px] !min-w-[72px]">
+                        <SelectContent className="rounded-lg shadow-lg border border-gray-200 w-[72px] !min-w-[72px] font-gasalt">
                             {[10, 20, 50, 100].map((size) => (
                                 <SelectItem key={size} value={String(size)} className="cursor-pointer py-2 text-sm w-[72px] !min-w-[72px]">
                                     {size}
@@ -166,33 +193,34 @@ export default function DynamicTable({
             </div>
 
 
-            {/* 📊 Table */}
-            <div className="overflow-x-auto rounded-lg w-full">
-                <style>{`tbody tr { border: 1px solid #2D5F51; }`}</style>
-                <Table className="min-w-full border-seperate border-spacing-0">
-                    <TableHeader className="">
-                        <TableRow className="bg-[#2D5F51]">
-                            {activeColumns.map((col, colIndex) => (
+            {/* Table */}
+            <div className="w-full overflow-x-auto rounded-lg border border-gray-200 bg-white">
+                <Table className="min-w-full border-separate border-spacing-0">
+                    <TableHeader>
+                        <TableRow className="border-b border-gray-200 bg-gray-50 hover:bg-gray-50">
+                            {activeColumns.map((col) => (
                                 <TableHead
                                     key={col.key}
-                                    onClick={() => handleSortClick(col.key)}
-                                    style={{
-                                        position: "sticky",
-                                        left: 0,
-                                        zIndex: 30,
-                                        borderRadius: colIndex === 0 ? "8px 0 0 8px" : colIndex === activeColumns.length - 1 ? "0 8px 8px 0" : undefined
-                                    }}
+                                    aria-sort={sortKey === col.key
+                                        ? sortOrder === "asc" ? "ascending" : "descending"
+                                        : "none"}
+                                    className="h-11 px-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-600"
                                 >
-                                    <div
-                                        className="p-2 text-center text-white font-semibold cursor-pointer select-none"
-                                    >
-                                        {col.label}
-                                        {sortKey === col.key && (
-                                            <span className="ml-1">
-                                                {sortOrder === "asc" ? "↑" : "↓"}
-                                            </span>
-                                        )}
-                                    </div>
+                                    {col.sortable === false ? col.label : (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleSortClick(col.key)}
+                                            className="inline-flex items-center gap-2 rounded-sm font-bold text-left outline-none hover:text-[#2D5F51] focus-visible:ring-2 focus-visible:ring-[#2D5F51]"
+                                            aria-label={`Sort by ${col.label}${sortKey === col.key ? `, currently ${sortOrder === "asc" ? "ascending" : "descending"}` : ""}`}
+                                        >
+                                            {col.label}
+                                            {sortKey === col.key
+                                                ? sortOrder === "asc"
+                                                    ? <ArrowUp className="h-3.5 w-3.5 cursor-pointer" aria-hidden="true" />
+                                                    : <ArrowDown className="h-3.5 w-3.5 cursor-pointer" aria-hidden="true" />
+                                                : <ArrowUpDown className="h-3.5 w-3.5 opacity-50 cursor-pointer" aria-hidden="true" />}
+                                        </button>
+                                    )}
                                 </TableHead>
                             ))}
                         </TableRow>
@@ -201,20 +229,13 @@ export default function DynamicTable({
                     <TableBody>
                         {sortedData.length > 0 ? (
                             sortedData.map((row, rowIndex) => (
-                                <TableRow key={rowIndex} className="text-center">
+                                <TableRow key={row._id ?? row.id ?? rowIndex} className="border-b border-gray-100 last:border-0 hover:bg-emerald-50/40">
                                     {activeColumns.map((col, colIndex) => (
                                         <TableCell
                                             key={col.key}
-                                            className={`p-2 text-center border border-[#2D5F51]
-                        
-                                            ${colIndex === 0 ? "rounded-l-lg" : ""}
-                                            ${colIndex === activeColumns.length - 1 ? "rounded-r-lg" : ""}
-                                            
-                                            ${rowIndex === 0 ? "border-t" : ""}
-                                            ${rowIndex === sortedData.length - 1 ? "border-b" : ""}
-                                            `}
+                                            className="px-4 py-3 text-sm text-gray-700"
                                         >
-                                            {row[col.key]}
+                                            {row[col.key] ?? <span className="text-gray-400">—</span>}
                                         </TableCell>
                                     ))}
                                 </TableRow>
@@ -223,7 +244,7 @@ export default function DynamicTable({
                             <TableRow>
                                 <TableCell
                                     colSpan={activeColumns.length}
-                                    className="text-center"
+                                    className="h-24 text-center text-sm text-gray-500"
                                 >
                                     No results found
                                 </TableCell>
@@ -238,7 +259,7 @@ export default function DynamicTable({
                 <Pagination
                     count={totalPages}
                     page={page}
-                    onChange={(e, value) => onPageChange(value)}
+                    onChange={(_, value) => onPageChange(value)}
                     size="small"
                     siblingCount={0}
                     boundaryCount={1}

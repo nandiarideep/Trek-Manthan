@@ -2,8 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FaHome, FaUser, FaCog, FaFile, FaFolder, FaDatabase, FaGlobe } from "react-icons/fa";
-
-
+import { TbUserQuestion } from "react-icons/tb";
 import logo from '@/assets/logo.jpeg';
 import Image from 'next/image';
 
@@ -11,7 +10,7 @@ import Image from 'next/image';
 const SIDEBAR_MENUS = [
     { id: 1, name: "Dashboard", slug: "dashboard", icon: FaHome },
     { id: 2, name: "Website Info", slug: "dashboard/website-info", icon: FaGlobe },
-    { id: 3, name: "Enquiries", slug: "dashboard/enquiries", icon: FaGlobe },
+    { id: 3, name: "Inquiries", slug: "dashboard/enquiries", icon: TbUserQuestion },
     { id: 4, name: "Bookings", slug: "dashboard/bookings", icon: FaFile },
     { id: 5, name: "Folders", slug: "dashboard/folders", icon: FaFolder },
     { id: 6, name: "Database", slug: "dashboard/database", icon: FaDatabase },
@@ -19,7 +18,7 @@ const SIDEBAR_MENUS = [
     { id: 8, name: "Settings", slug: "dashboard/settings", icon: FaCog },
 ];
 
-/* ---------------- Sidebar Item ---------------- */
+/* ---------------- Sidebar Items ---------------- */
 function SidebarItem({ item }) {
     const IconComponent = item.icon;
     const pathname = usePathname();

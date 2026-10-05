@@ -2,14 +2,71 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import DateRangePicker from "../../components/DatePicker"
+import toast, { Toaster } from 'react-hot-toast';
 
-export default function ContactSection() {
+export default function Contact() {
     const [pageInfo, setPageInfo] = useState({ email: '', contact: '', address: '' });
     const [tripTypes, setTripTypes] = useState([]);
-    const [selectedTripType, setSelectedTripType] = useState('');
-    const [selectedBudget, setSelectedBudget] = useState('');
-    const [budgets] = useState(['Under $1,500', '$1,500 - $5,000', '$5,000+']);
+    const [budgets] = useState(['Under ₹ 5,000', '₹ 5,000 - ₹ 10,000', '₹ 10,000+']);
     const [loading, setLoading] = useState(true);
+    const [formData, setFormData] = useState({
+        fullName: '',
+        email: '',
+        destination: '',
+        travelers: '',
+        tripType: '',
+        budget: '',
+        startDate: '',
+        endDate: '',
+    });
+    const [submitting, setSubmitting] = useState(false);
+
+    // Custom handers
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            setSubmitting(true);
+
+            const response = await axios.post('/api/inquiries', formData);
+
+            console.log('Inquiry created:', response.data);
+
+            toast.success('Your inquiry has been submitted successfully!');
+
+            // Reset form
+            setFormData({
+                fullName: '',
+                email: '',
+                destination: '',
+                travelers: '',
+                tripType: '',
+                budget: '',
+                startDate: '',
+                endDate: '',
+            });
+
+        } catch (error) {
+            console.error('Failed to submit inquiry:', error);
+
+            toast.error(
+                error.response?.data?.message ||
+                'Something went wrong. Please try again.'
+            );
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     useEffect(() => {
         const controller = new AbortController();
@@ -55,6 +112,8 @@ export default function ContactSection() {
 
     return (
         <main className="min-h-[100dvh] w-full px-4 py-6 sm:px-6 sm:py-8 bg-gradient-to-b from-[#F6EFDF] to-[#2d7a63] text-white flex flex-col items-center justify-center gap-6 sm:gap-10">
+            <Toaster position="bottom-right" />
+
             <div className="relative w-full max-w-6xl mx-auto rounded-3xl border border-white/10 overflow-hidden bg-[#0e1310]">
                 {/* Ambient glow, bottom-left */}
                 <div className="pointer-events-none absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-500/25 blur-[100px] rounded-full" />
@@ -97,7 +156,7 @@ export default function ContactSection() {
                     </div>
 
                     {/* Right column — form */}
-                    <form className="flex flex-col gap-5 sm:gap-6 text-white">
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-5 sm:gap-6 text-white">
                         <div>
                             <p className="text-sm text-white/70 mb-2">Trip type</p>
                             <div className="flex flex-wrap gap-2">
@@ -105,8 +164,13 @@ export default function ContactSection() {
                                     <button
                                         key={type}
                                         type="button"
-                                        onClick={() => setSelectedTripType(type)}
-                                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${selectedTripType === type
+                                        onClick={() =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                tripType: type,
+                                            }))
+                                        }
+                                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${formData.tripType === type
                                             ? 'bg-white text-black border-white'
                                             : 'border-white/20 text-white/70 hover:border-white/40'
                                             }`}
@@ -124,8 +188,13 @@ export default function ContactSection() {
                                     <button
                                         key={b}
                                         type="button"
-                                        onClick={() => setSelectedBudget(b)}
-                                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${selectedBudget === b
+                                        onClick={() =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                budget: b,
+                                            }))
+                                        }
+                                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${formData.budget === b
                                             ? 'bg-white text-black border-white'
                                             : 'border-white/20 text-white/70 hover:border-white/40'
                                             }`}
@@ -141,6 +210,9 @@ export default function ContactSection() {
                                 <label className="text-sm text-white/70">Full name*</label>
                                 <input
                                     type="text"
+                                    name="fullName"
+                                    value={formData.fullName}
+                                    onChange={handleChange}
                                     required
                                     className="w-full bg-transparent border-b border-white/20 py-2 mt-1 focus:outline-none focus:border-white"
                                 />
@@ -149,27 +221,57 @@ export default function ContactSection() {
                                 <label className="text-sm text-white/70">Email*</label>
                                 <input
                                     type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
                                     required
                                     className="w-full bg-transparent border-b border-white/20 py-2 mt-1 focus:outline-none focus:border-white"
                                 />
                             </div>
                         </div>
 
-                        <div>
-                            <label className="text-sm text-white/70">Where do you want to go?*</label>
-                            <input
-                                type="text"
-                                required
-                                placeholder="Destination, dates, number of travelers..."
-                                className="w-full bg-transparent border-b border-white/20 py-2 mt-1 focus:outline-none focus:border-white placeholder:text-white/30"
-                            />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-sm text-white/70">Destination?*</label>
+                                <input
+                                    type="text"
+                                    name="destination"
+                                    value={formData.destination}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full bg-transparent border-b border-white/20 py-2 mt-1 focus:outline-none focus:border-white placeholder:text-white/30"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-sm text-white/70">No of travelers?*</label>
+                                <input
+                                    type="number"
+                                    name="travelers"
+                                    value={formData.travelers}
+                                    onChange={handleChange}
+                                    min="1"
+                                    required
+                                    className="w-full bg-transparent border-b border-white/20 py-2 mt-1 focus:outline-none focus:border-white placeholder:text-white/30"
+                                />
+                            </div>
                         </div>
+
+                        <DateRangePicker
+                            onChange={(range) => {
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    startDate: range.from,
+                                    endDate: range.to,
+                                }));
+                            }}
+                        />
 
                         <button
                             type="submit"
-                            className="mt-2 w-full py-3.5 rounded-full bg-white text-black font-medium hover:bg-white/90 transition-colors"
+                            disabled={submitting}
+                            className="mt-2 w-full py-3.5 rounded-full bg-white text-black font-medium hover:bg-white/90 transition-colors cursor-pointer"
                         >
-                            Send inquiry
+                            {submitting ? 'Sending...' : 'Send inquiry'}
                         </button>
                     </form>
                 </div>
