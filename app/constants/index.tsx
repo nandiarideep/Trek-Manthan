@@ -2,7 +2,7 @@ import { NavigationRedirects, NavigationSocials, Cities, ScrollCardsData, Carous
 
 export const NAVIGATION_REDIRECTS: NavigationRedirects[] = [
     { id: 'home', label: 'Home', href: '#home' },
-    { id: 'services', label: 'Services', href: '#services' },
+    // { id: 'services', label: 'Services', href: '#services' },
     { id: 'destinations', label: 'Destinations', href: '#destinations' },
     { id: 'gallery', label: 'Gallery', href: '#gallery' },
     { id: 'contact', label: 'Contact', href: '#contact' },

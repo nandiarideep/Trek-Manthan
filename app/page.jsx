@@ -17,9 +17,9 @@ const page = () => {
         <section id="home">
           <Landing />
         </section>
-        <section id="services">
+        {/* <section id="services">
           <Services />
-        </section>
+        </section> */}
         <section id="destinations">
           <Destinations />
         </section>

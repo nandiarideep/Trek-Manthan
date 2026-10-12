@@ -1,24 +1,21 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FaHome, FaUser, FaCog, FaFile, FaFolder, FaDatabase, FaGlobe } from "react-icons/fa";
+import { FaHome, FaCog, FaGlobe } from "react-icons/fa";
+import { MdLibraryAddCheck } from "react-icons/md";
 import { TbUserQuestion } from "react-icons/tb";
 import logo from '@/assets/logo.jpeg';
 import Image from 'next/image';
 
-/* ---------------- Sidebar Menu Configuration ---------------- */
+// Sidebar Items 
 const SIDEBAR_MENUS = [
     { id: 1, name: "Dashboard", slug: "dashboard", icon: FaHome },
     { id: 2, name: "Website Info", slug: "dashboard/website-info", icon: FaGlobe },
     { id: 3, name: "Inquiries", slug: "dashboard/enquiries", icon: TbUserQuestion },
-    { id: 4, name: "Bookings", slug: "dashboard/bookings", icon: FaFile },
-    { id: 5, name: "Folders", slug: "dashboard/folders", icon: FaFolder },
-    { id: 6, name: "Database", slug: "dashboard/database", icon: FaDatabase },
-    { id: 7, name: "Users", slug: "dashboard/users", icon: FaUser },
-    { id: 8, name: "Settings", slug: "dashboard/settings", icon: FaCog },
+    { id: 4, name: "Bookings", slug: "dashboard/bookings", icon: MdLibraryAddCheck },
+    { id: 5, name: "Settings", slug: "dashboard/settings", icon: FaCog },
 ];
 
-/* ---------------- Sidebar Items ---------------- */
 function SidebarItem({ item }) {
     const IconComponent = item.icon;
     const pathname = usePathname();
@@ -29,8 +26,8 @@ function SidebarItem({ item }) {
             <Link
                 href={`/${item.slug}`}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 ${isActive
-                        ? "bg-[#2D5F51] text-white"
-                        : "hover:bg-[#2D5F51] text-[#2D5F51] hover:text-white"
+                    ? "bg-[#2D5F51] text-white"
+                    : "hover:bg-[#2D5F51] text-[#2D5F51] hover:text-white"
                     }`}
             >
                 <IconComponent className="text-lg flex-shrink-0" />

@@ -235,7 +235,9 @@ export default function DynamicTable({
                                             key={col.key}
                                             className="px-4 py-3 text-sm text-gray-700"
                                         >
-                                            {row[col.key] ?? <span className="text-gray-400">—</span>}
+                                            {col.render
+                                                ? col.render(row[col.key], row)
+                                                : row[col.key] ?? <span className="text-gray-400">—</span>}
                                         </TableCell>
                                     ))}
                                 </TableRow>

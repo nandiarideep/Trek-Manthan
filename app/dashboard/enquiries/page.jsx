@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import DynamicTable from '../../components/DynamicTable'
 import { fetchInquiries } from '@/lib/features/inquiries/inquiriesSlice'
+import { formatDate } from '@/app/utils/DateFormatter'
 
 const page = () => {
     const dispatch = useDispatch()
@@ -22,8 +23,8 @@ const page = () => {
         { key: "tripType", label: "Trip Type" },
         { key: "travelers", label: "No Of Persons" },
         { key: "budget", label: "Budget" },
-        { key: "startDate", label: "Start Date" },
-        { key: "endDate", label: "End Date" },
+        { key: "startDate", label: "Start Date", render: formatDate },
+        { key: "endDate", label: "End Date", render: formatDate },
     ]
 
     return (

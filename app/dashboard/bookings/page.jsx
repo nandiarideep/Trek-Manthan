@@ -4,14 +4,17 @@ import DynamicTable from '../../components/DynamicTable'
 const page = () => {
 
     const data = [
-        { name: "Arideep", address: "123 Main St", destination: "Sandak phu", noOfPersons: 2 }
+        { name: "Arideep", address: "123 Main St", contact: "75959-32236", destination: "Sandak phu", noOfPersons: 2, fromDate: "2023-10-01", toDate: "2023-10-05" }
     ]
 
     const columns = [
         { key: "name", label: "Booking Name" },
         { key: "address", label: "Booking Address" },
+        { key: "contact", label: "Contact Number" },
         { key: "destination", label: "Destination" },
         { key: "noOfPersons", label: "No Of Persons" },
+        { key: "fromDate", label: "From Date" },
+        { key: "toDate", label: "To Date" },
     ]
 
     return (
