@@ -11,7 +11,6 @@ const imageSchema = new mongoose.Schema(
 const destinationSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
-    title: { type: String, required: true, trim: true },
     desc: { type: String, required: true, trim: true },
     images: {
       type: [imageSchema],

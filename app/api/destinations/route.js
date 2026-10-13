@@ -14,7 +14,7 @@ const getBucket = () =>
 const toUrl = (id) => `/api/destinations?image=${id}`;
 
 const deleteFile = (fileId) =>
-    getBucket().delete(new mongoose.Types.ObjectId(fileId)).catch(() => {});
+    getBucket().delete(new mongoose.Types.ObjectId(fileId)).catch(() => { });
 
 async function uploadFile(file, uploadedIds) {
     const uploadStream = getBucket().openUploadStream(file.name, {
@@ -28,11 +28,9 @@ async function uploadFile(file, uploadedIds) {
 // Reads + validates the multipart body shared by POST and PUT
 function parseForm(body) {
     const name = String(body.get('name') || '').trim();
-    if (!name) return { error: 'Destination name is required' };
-    const title = String(body.get('title') || '').trim();
-    if (!title) return { error: 'Destination title is required' };
+    if (!name) return { error: 'Destination name is required!' };
     const desc = String(body.get('desc') || '').trim();
-    if (!desc) return { error: 'Destination description is required' };
+    if (!desc) return { error: 'Destination description is required!' };
 
     let meta;
     try {
@@ -57,7 +55,7 @@ function parseForm(body) {
         fileId: m.fileId ? String(m.fileId) : null,
     }));
 
-    return { name, title, desc, meta, files };
+    return { name, desc, meta, files };
 }
 
 // Keeps existing images (fileId present) and uploads new ones, preserving order
@@ -124,7 +122,6 @@ export async function POST(request) {
         const images = await buildImages(parsed, uploadedIds);
         const destination = await Destination.create({
             name: parsed.name,
-            title: parsed.title,
             desc: parsed.desc,
             images,
         });
@@ -164,7 +161,6 @@ export async function PUT(request) {
         const removed = destination.images.filter((i) => !keptIds.includes(i.fileId));
 
         destination.name = parsed.name;
-        destination.title = parsed.title;
         destination.desc = parsed.desc;
         destination.images = images;
         await destination.save();

@@ -85,15 +85,13 @@ const Card = ({ card, index, total }) => {
                         showIndicators={hasMultiple}
                     />
                 </div>
+                <div className="flex justify-between">
+                    <div className="mt-4">
+                        <h3 className="text-4xl font-bold mt-2 tracking-wide">{card.title}</h3>
 
-                <div className="mt-4">
-                    <span className="text-sm font-semibold opacity-70">
-                        {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
-                    </span>
-
-                    <h3 className="text-4xl font-bold mt-2 tracking-wide">{card.title}</h3>
-
-                    <p className="text-lg mt-2 tracking-wide">{card.desc}</p>
+                        <p className="text-lg mt-2 tracking-wide">{card.desc}</p>
+                    </div>
+                    <button className="mt-4 px-6 py-2 bg-black/20 hover:bg-black/30 rounded-lg text-white font-semibold transition cursor-pointer">Book Now</button>
                 </div>
             </motion.div>
         </div>
@@ -101,7 +99,6 @@ const Card = ({ card, index, total }) => {
 };
 
 export default function CascadeCards({ destinations }) {
-    // null = still loading
     const [cards, setCards] = useState(destinations ? fromDestinations(destinations) : null);
 
     useEffect(() => {
